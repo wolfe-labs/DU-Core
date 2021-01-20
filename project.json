@@ -1,0 +1,6 @@
+{
+  "name": "@wolfe-labs/Core",
+  "description": "⚛️ Core utilities for Wolfe Labs projects and libraries, including Events and OOP helpers",
+  "sourcePath": "src",
+  "outputPath": "out"
+}
