@@ -32,9 +32,6 @@ function Thread.__constructor (self, worker, options)
   ThreadScheduler.poolNextId = ThreadScheduler.poolNextId + 1
   self.id = ThreadScheduler.poolNextId
 
-  -- Adds to Thread Pool
-  ThreadScheduler.pool[self.id] = self
-
   -- Starts the CPU timer for the first time
   self.cpuLastTimed = nil
 
@@ -44,15 +41,22 @@ function Thread.__constructor (self, worker, options)
   -- The batch iterator
   self.batch = false
 
+  -- Indicates if the thread has finished executing
+  self.finished = false
+
   -- Creates the actual coroutine
   self._coroutine = coroutine.create(function ()
     -- Invokes the actual routine, passing the Thread as argument
     worker(self)
   
     -- Handles when the Thread ends
+    self.finished = true
     ThreadScheduler.pool[self.id] = nil
     collectgarbage('collect')
   end)
+
+  -- Adds to Thread Pool
+  ThreadScheduler.pool[self.id] = self
 end
 
 -- This resumes a Thread and is called by the Scheduler automatically
