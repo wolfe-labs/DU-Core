@@ -41,6 +41,9 @@ function Thread.__constructor (self, worker, options)
   -- The iteration counter
   self.iter = 0
 
+  -- The batch iterator
+  self.batch = false
+
   -- Creates the actual coroutine
   self._coroutine = coroutine.create(function ()
     -- Invokes the actual routine, passing the Thread as argument
@@ -91,9 +94,28 @@ function Thread:getCpuTimeSlice ()
 end
 
 -- Actually ticks the Threads via the Scheduler
+local currentBatch = true
 function ThreadScheduler.next ()
-  if ThreadScheduler.pool[1] then
-    ThreadScheduler.pool[1]:resume()
+  -- Only do stuff when we need to
+  if #(ThreadScheduler.pool) > 0 then
+    local execute = nil
+    for _, thread in pairs(ThreadScheduler.pool) do
+      -- Thread was last executed on previous batch! So we need to run it now.
+      if not thread.batch == currentBatch then
+        ThreadScheduler.pool[_].batch = currentBatch
+        execute = thread
+        break
+      end
+    end
+
+    -- If we have an thread to run, we call it now
+    if execute then
+      execute:resume()
+    else
+      -- If at end of batch no thread was executed, flip the batch and try again
+      currentBatch = not currentBatch
+      ThreadScheduler.next()
+    end
   end
 end
 
