@@ -97,6 +97,15 @@ function Thread:getCpuTimeSlice ()
   return self:getCpuTime() / system.getActionUpdateDeltaTime()
 end
 
+-- Skips N ticks on that Thread
+function Thread:skip (ticks)
+  local num = 0
+  while num < ticks do
+    coroutine.yield()
+    num = num + 1
+  end
+end
+
 -- Actually ticks the Threads via the Scheduler
 local currentBatch = true
 function ThreadScheduler.next ()
