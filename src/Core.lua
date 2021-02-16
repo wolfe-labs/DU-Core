@@ -7,6 +7,7 @@ return {
   Class = require('Class'),
   Utils = require('Utils'),
   Events = require('Events'),
+  Thread = require('Thread'),
   Geometry = require('Geometry'),
   SharedMemory = require('SharedMemory'),
 }
