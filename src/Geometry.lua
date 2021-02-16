@@ -15,10 +15,10 @@ function Geometry.getConstructWorldRotation (coreUnit)
 end
 
 -- Converts from a Construct's local space into world space
-function Geometry.convertWorldToLocalPosition (coreUnit, pos)
+function Geometry.convertWorldToLocalPosition (coreUnit, pos, axis, posG)
   -- Gets the construct rotation axes in world-space
-  local axis = Geometry.getConstructWorldRotation(coreUnit)
-  local posG = vec3(coreUnit.getConstructWorldPos())
+  axis = axis or Geometry.getConstructWorldRotation(coreUnit)
+  posG = posG or vec3(coreUnit.getConstructWorldPos())
 
   -- Converts pos into a relative position
   pos = vec3(pos) - posG
@@ -45,15 +45,15 @@ function Geometry.convertWorldToLocalPosition (coreUnit, pos)
 end
 
 -- Converts from world space into a Construct's local space
-function Geometry.convertLocalToWorldPosition (coreUnit, pos)
+function Geometry.convertLocalToWorldPosition (coreUnit, pos, axis, posG)
   -- Converts into relative position
-  local posG = vec3(coreUnit.getConstructWorldPos())
+  posG = posG or vec3(coreUnit.getConstructWorldPos())
   
   -- Makes sure pos is a vector
   pos = vec3(pos)
 
   -- Gets the construct rotation axis and position in world-space
-  local axis = Geometry.getConstructWorldRotation(coreUnit)
+  axis = axis or Geometry.getConstructWorldRotation(coreUnit)
 
   -- Extract the axes into individual variables
   local rightX, rightY, rightZ = axis.right:unpack()
