@@ -100,18 +100,22 @@ end
 -- Actually ticks the Threads via the Scheduler
 local currentBatch = true
 function ThreadScheduler.next ()
-  -- Only do stuff when we need to
-  if #(ThreadScheduler.pool) > 0 then
-    local execute = nil
-    for _, thread in pairs(ThreadScheduler.pool) do
-      -- Thread was last executed on previous batch! So we need to run it now.
-      if not thread.batch == currentBatch then
-        ThreadScheduler.pool[_].batch = currentBatch
-        execute = thread
-        break
-      end
-    end
+  local execute = nil
+  local hasThreads = false
+  for _, thread in pairs(ThreadScheduler.pool) do
+    -- Flip the "hasThreads" flag that we're going to use next step
+    hasThreads = true
 
+    -- Thread was last executed on previous batch! So we need to run it now.
+    if not thread.batch == currentBatch then
+      ThreadScheduler.pool[_].batch = currentBatch
+      execute = thread
+      break
+    end
+  end
+
+  -- Only do this part of code WHEN THERE IS THREADS, as it may end in an infinite loop otherwise
+  if hasThreads then
     -- If we have an thread to run, we call it now
     if execute then
       execute:resume()
