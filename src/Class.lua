@@ -27,6 +27,9 @@ function Class.new (className, obj, ...)
   -- Setup class name
   class.__class = className
 
+  -- This array indicates which Classes, in order of priority, implement methods for the new class
+  class.__implements = {}
+
   -- Setup instance counter
   class.getInstanceId = (function (self)
     -- If there's not an __instance value set, then set it
@@ -85,6 +88,9 @@ function Class.inherits (childClass, parentClass)
   if not childClass.__parent then
     childClass.__parent = parentClass
   end
+
+  -- Adds to the implementation list, this list will be read later to see which implementations we have available
+  table.insert(childClass.__implements, parentClass)
   
   -- This is the heart of the inheritance system, if will check for an override on child class and, if not found, search for it on parent class
   childClass.__index = (function (t, k)
@@ -94,13 +100,23 @@ end
 
 -- Resolve inheritance
 function Class.resolve (class, metatable, key)
+  -- Tries to use existing implementation on current class
   if class[key] then
     return class[key]
-  elseif class.__parent then
-    return Class.resolve (class.__parent, metatable, key)
-  else
-    return nil
+
+  -- Tries to find a matching implementation
+  elseif #(class.__implements) > 0 then
+    local resolved = false
+    for _, impl in ipairs(class.__implements) do
+      resolved = Class.resolve (impl, metatable, key)
+      if resolved then
+        return resolved
+      end
+    end
   end
+
+  -- If all else fails, returns nil
+  return nil
 end
 
 -- Returns the Class object for requires
