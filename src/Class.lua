@@ -82,7 +82,9 @@ end
 -- Setup inheritance
 function Class.inherits (childClass, parentClass)
   -- Set the parent class entry
-  childClass.__parent = parentClass
+  if not childClass.__parent then
+    childClass.__parent = parentClass
+  end
   
   -- This is the heart of the inheritance system, if will check for an override on child class and, if not found, search for it on parent class
   childClass.__index = (function (t, k)
