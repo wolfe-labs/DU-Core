@@ -44,7 +44,12 @@ function Class.new (className, obj, ...)
 
   -- This is called right after we create a new instance
   if not class.__constructor then
-    class.__constructor = function (...) end
+    class.__constructor = (function (self, ...)
+      -- This should call the parent class' constructor instead if the current class has no constructor
+      if self.__parent then
+        self.__parent:__constructor(Utils.unpack({...}))
+      end
+    end)
   end
 
   -- Overrides the new() method
